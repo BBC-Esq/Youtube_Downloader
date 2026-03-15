@@ -1,27 +1,24 @@
 # Youtube Downloader
 Provides a nice graphical user interface to use the [pytubefix library](https://github.com/JuanBindez/pytubefix) to download files from Youtube.
 
-# Installation
+## Installation
 
-### Create Virtual Environment
+Create Virtual Environment
 ```
 python -m venv .
 ```
-
-### Activate
+Activate
 ```
 .\Scripts\activate
 ```
-
-### Install Libraries
+Install Libraries
 ```
 python install.py
 ```
 
-# Usage
+## Usage
 
 1) Activate your virtual environment
-
 2) Run the script.
 ```
 python main.py
