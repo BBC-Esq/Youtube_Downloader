@@ -10,11 +10,10 @@ os.system("")
 libs_with_deps = [
     "pyside6",
     "av",
-]
-
-libs_no_deps = [
     "pytubefix",
 ]
+
+libs_no_deps = []
 
 start_time = time.time()
 
