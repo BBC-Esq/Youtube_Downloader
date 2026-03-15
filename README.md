@@ -14,23 +14,22 @@
 
 ## Installation
 
-Create Virtual Environment
+Download the latest release, unzip, open a command prompt within the directory and run in order:
 ```
 python -m venv .
 ```
-Activate
 ```
 .\Scripts\activate
 ```
-Install Libraries
 ```
 python install.py
 ```
 
 ## Usage
 
-1) Activate your virtual environment
-2) Run the script.
+```
+.\Scripts\activate
+```
 ```
 python main.py
 ```
