@@ -40,6 +40,7 @@ class MainWindow(QMainWindow):
         self.temp_audio_path = ""
         self._pre_fullscreen_geometry = None
         self._fullscreen_hidden_widgets = []
+        self._active_threads = []
 
         menu_bar = self.menuBar()
         settings_menu = menu_bar.addMenu("Settings")
@@ -285,6 +286,7 @@ class MainWindow(QMainWindow):
         self.fetch_thread.error.connect(self.show_error)
         self.fetch_thread.client_switched.connect(self.show_client_switch)
         self.fetch_thread.start()
+        self._track_thread(self.fetch_thread)
 
     @Slot(str, str)
     def show_client_switch(self, original_client, new_client):
@@ -331,6 +333,7 @@ class MainWindow(QMainWindow):
             self.thumbnail_thread = ThumbnailThread(thumbnail_url)
             self.thumbnail_thread.finished.connect(self._on_thumbnail_loaded)
             self.thumbnail_thread.start()
+            self._track_thread(self.thumbnail_thread)
 
     @Slot(QPixmap)
     def _on_thumbnail_loaded(self, pixmap):
@@ -664,6 +667,7 @@ class MainWindow(QMainWindow):
         self.download_thread.completed.connect(self.audio_download_completed)
         self.download_thread.error.connect(self.download_error)
         self.download_thread.start()
+        self._track_thread(self.download_thread)
 
     @Slot(str)
     def audio_download_completed(self, file_path):
@@ -741,6 +745,7 @@ class MainWindow(QMainWindow):
         self.download_thread.completed.connect(self.video_download_completed)
         self.download_thread.error.connect(self.download_error)
         self.download_thread.start()
+        self._track_thread(self.download_thread)
 
     @Slot(str)
     def video_download_completed(self, video_path):
@@ -763,6 +768,7 @@ class MainWindow(QMainWindow):
         self.download_thread.completed.connect(self.audio_for_mux_completed)
         self.download_thread.error.connect(self.download_error)
         self.download_thread.start()
+        self._track_thread(self.download_thread)
 
     @Slot(str)
     def audio_for_mux_completed(self, audio_path):
@@ -781,6 +787,7 @@ class MainWindow(QMainWindow):
         self.mux_thread.completed.connect(self.mux_completed)
         self.mux_thread.error.connect(self.mux_error)
         self.mux_thread.start()
+        self._track_thread(self.mux_thread)
 
     @Slot(str)
     def mux_completed(self, output_path):
@@ -867,6 +874,7 @@ class MainWindow(QMainWindow):
         self.conversion_thread.completed.connect(self.conversion_completed)
         self.conversion_thread.error.connect(self.conversion_error)
         self.conversion_thread.start()
+        self._track_thread(self.conversion_thread)
 
     @Slot(str)
     def conversion_completed(self, converted_path):
@@ -955,6 +963,7 @@ class MainWindow(QMainWindow):
         self.caption_thread.completed.connect(self.transcript_download_completed)
         self.caption_thread.error.connect(self.transcript_download_error)
         self.caption_thread.start()
+        self._track_thread(self.caption_thread)
 
     @Slot(str)
     def transcript_download_completed(self, file_path):
@@ -987,6 +996,14 @@ class MainWindow(QMainWindow):
         self.status_label.setText("Failed to fetch data.")
         self.url_entry.setEnabled(True)
 
+    def _track_thread(self, thread):
+        self._active_threads = [t for t in self._active_threads if t.isRunning()]
+        self._active_threads.append(thread)
+
     def closeEvent(self, event):
         self.player.release()
+        for t in self._active_threads:
+            if t.isRunning():
+                t.quit()
+                t.wait(3000)
         super().closeEvent(event)
