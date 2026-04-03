@@ -839,8 +839,10 @@ class MainWindow(QMainWindow):
         channel_name = self.conv_channels_combo.currentText()
         channels = CHANNEL_OPTIONS.get(channel_name, 2)
 
-        base, _ = os.path.splitext(input_path)
+        base, original_ext = os.path.splitext(input_path)
         output_path = f"{base}.{fmt_config['extension']}"
+        if os.path.normpath(output_path) == os.path.normpath(input_path):
+            output_path = f"{base}_converted.{fmt_config['extension']}"
 
         codec = fmt_config["codec"]
         sample_format = CODEC_SAMPLE_FORMATS.get(codec, "fltp")
