@@ -976,6 +976,7 @@ class MainWindow(QMainWindow):
     def download_error(self, error_message):
         self.progress_bar.setVisible(False)
         self.pending_audio_conversion = False
+        self.cleanup_temp_files()
         self.error_label.setText(f"Error: {error_message}")
         self.status_label.setText("Download failed.")
         self.download_button.setEnabled(True)
