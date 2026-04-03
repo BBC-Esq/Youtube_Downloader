@@ -20,6 +20,8 @@ class ConversionThread(QThread):
         self.channels = channels
 
     def run(self):
+        input_container = None
+        output_container = None
         try:
             input_container = av.open(self.input_path)
             output_container = av.open(self.output_path, mode="w", format=self.container)
@@ -62,10 +64,14 @@ class ConversionThread(QThread):
             for packet in out_stream.encode(None):
                 output_container.mux(packet)
 
-            output_container.close()
-            input_container.close()
-
             self.progress.emit(100)
             self.completed.emit(self.output_path)
         except Exception as e:
             self.error.emit(str(e))
+        finally:
+            for container in (output_container, input_container):
+                if container is not None:
+                    try:
+                        container.close()
+                    except Exception:
+                        pass

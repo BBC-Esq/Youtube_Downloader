@@ -15,6 +15,9 @@ class MuxThread(QThread):
         self.container_format = container_format
 
     def run(self):
+        video_input = None
+        audio_input = None
+        output = None
         try:
             video_input = av.open(self.video_path)
             audio_input = av.open(self.audio_path)
@@ -65,11 +68,14 @@ class MuxThread(QThread):
                 packet.stream = audio_out_stream
                 output.mux(packet)
 
-            output.close()
-            audio_input.close()
-            video_input.close()
-
             self.progress.emit(100)
             self.completed.emit(self.output_path)
         except Exception as e:
             self.error.emit(str(e))
+        finally:
+            for container in (output, audio_input, video_input):
+                if container is not None:
+                    try:
+                        container.close()
+                    except Exception:
+                        pass
