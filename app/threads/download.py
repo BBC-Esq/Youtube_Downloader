@@ -26,6 +26,7 @@ class DownloadThread(QThread):
             self.progress.emit(percent)
 
     def run(self):
+        original_callback = getattr(self.stream._monostate, 'on_progress', None)
         try:
             self.stream._monostate.on_progress = self._on_progress
             downloaded_file = self.stream.download(
@@ -44,3 +45,5 @@ class DownloadThread(QThread):
                 self.error.emit("Download was skipped or failed.")
         except Exception as e:
             self.error.emit(str(e))
+        finally:
+            self.stream._monostate.on_progress = original_callback
