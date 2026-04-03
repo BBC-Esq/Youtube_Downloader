@@ -639,6 +639,17 @@ class MainWindow(QMainWindow):
             ext = f".{stream.subtype}"
             filename = f"{filename[:200 - len(ext)]}{ext}"
 
+        output_path = os.path.join(download_dir, filename)
+        if os.path.exists(output_path):
+            reply = QMessageBox.question(
+                self, "File Exists",
+                f"'{filename}' already exists.\nOverwrite it?",
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+            )
+            if reply != QMessageBox.Yes:
+                self.download_button.setEnabled(True)
+                return
+
         self.pending_audio_conversion = self.should_convert_audio()
         self.status_label.setText(f"Downloading audio: {filename}")
         self.progress_bar.setValue(0)
@@ -646,7 +657,8 @@ class MainWindow(QMainWindow):
         self.progress_bar.setVisible(True)
 
         self.download_thread = DownloadThread(
-            stream=stream, output_path=download_dir, filename=filename
+            stream=stream, output_path=download_dir, filename=filename,
+            skip_existing=False
         )
         self.download_thread.progress.connect(self.update_progress)
         self.download_thread.completed.connect(self.audio_download_completed)
@@ -703,6 +715,16 @@ class MainWindow(QMainWindow):
         self.final_output_path = os.path.join(download_dir, final_filename)
         self.mux_container_format = container_fmt
 
+        if os.path.exists(self.final_output_path):
+            reply = QMessageBox.question(
+                self, "File Exists",
+                f"'{final_filename}' already exists.\nOverwrite it?",
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+            )
+            if reply != QMessageBox.Yes:
+                self.download_button.setEnabled(True)
+                return
+
         self.pending_audio_stream = audio_stream
         self.status_label.setText(f"Downloading video: {res}...")
         self.progress_bar.setValue(0)
@@ -712,7 +734,8 @@ class MainWindow(QMainWindow):
         self.download_thread = DownloadThread(
             stream=video_stream,
             output_path=download_dir,
-            filename=video_filename
+            filename=video_filename,
+            skip_existing=False
         )
         self.download_thread.progress.connect(self.update_progress)
         self.download_thread.completed.connect(self.video_download_completed)
@@ -733,7 +756,8 @@ class MainWindow(QMainWindow):
         self.download_thread = DownloadThread(
             stream=audio_stream,
             output_path=download_dir,
-            filename=audio_filename
+            filename=audio_filename,
+            skip_existing=False
         )
         self.download_thread.progress.connect(self.update_progress)
         self.download_thread.completed.connect(self.audio_for_mux_completed)
