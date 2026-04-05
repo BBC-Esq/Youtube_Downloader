@@ -69,8 +69,9 @@ class MuxThread(QThread):
                 output.mux(packet)
 
             self.progress.emit(100)
-            self.completed.emit(self.output_path)
+            success = True
         except Exception as e:
+            success = False
             self.error.emit(str(e))
         finally:
             for container in (output, audio_input, video_input):
@@ -79,3 +80,5 @@ class MuxThread(QThread):
                         container.close()
                     except Exception:
                         pass
+        if success:
+            self.completed.emit(self.output_path)
